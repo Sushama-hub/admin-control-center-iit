@@ -34,8 +34,8 @@ const LoginPage = () => {
     // console.log("Email:", email);
     // console.log("Password:", password);
 
-    const baseUrl = "http://localhost:5000";
-    const url = `${baseUrl}/api/v1/user/login`;
+    const baseUrl = "http://localhost:8000";
+    const url = `${baseUrl}/api/admin/login`;
 
     try {
       const { data } = await axios.post(

@@ -10,10 +10,11 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import axios from "axios";
 
 const ComponentForm = () => {
   const [formData, setFormData] = useState({
-    componentName: "",
+    component: "",
     specification: "",
     quantity: "",
   });
@@ -25,16 +26,44 @@ const ComponentForm = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   setOpenSnackbar(true);
+  //   console.log("Form Submitted:", formData);
+  //   setFormData({
+  //     ...formData,
+  //     component: "",
+  //     specification: "",
+  //     quantity: "",
+  //   });
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setOpenSnackbar(true);
-    console.log("Form Submitted:", formData);
-    setFormData({
-      ...formData,
-      componentName: "",
-      specification: "",
-      quantity: "",
-    });
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/form/inventory-form",
+        formData, // <-- Send formData directly
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      console.log(response?.data);
+
+      if (response?.data?.success === true) {
+        setOpenSnackbar(true);
+        setFormData({
+          ...formData,
+          component: "",
+          specification: "",
+          quantity: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
@@ -75,7 +104,12 @@ const ComponentForm = () => {
               🏷️ Inventory Entry
             </Typography>
 
-            <form
+            {/* <form
+              onSubmit={handleSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            > */}
+            <Box
+              component="form"
               onSubmit={handleSubmit}
               style={{ display: "flex", flexDirection: "column", gap: "16px" }}
             >
@@ -83,8 +117,8 @@ const ComponentForm = () => {
               <TextField
                 fullWidth
                 label="Component Name"
-                name="componentName"
-                value={formData.componentName}
+                name="component"
+                value={formData.component}
                 onChange={handleChange}
                 variant="outlined"
                 required
@@ -161,7 +195,8 @@ const ComponentForm = () => {
               >
                 🚀 Submit
               </Button>
-            </form>
+            </Box>
+            {/* </form> */}
           </CardContent>
         </Card>
       </Container>

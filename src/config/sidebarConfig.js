@@ -3,8 +3,15 @@ import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import DynamicFormIcon from "@mui/icons-material/DynamicForm";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import LogoutIcon from "@mui/icons-material/Logout";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 export const sidebarConfig = {
   items: [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: DashboardIcon,
+      iconColor: "#f8fafc",
+    },
     {
       id: "issued_records",
       label: "Issued Records",

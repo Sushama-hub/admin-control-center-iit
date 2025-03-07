@@ -9,8 +9,11 @@ import {
   Container,
   Typography,
   Paper,
-  Grid,
+  Card,
+  CardContent,
+  CircularProgress,
 } from "@mui/material";
+import axios from "axios";
 
 export default function IssuanceForm() {
   const [formData, setFormData] = useState({
@@ -22,9 +25,11 @@ export default function IssuanceForm() {
     branch: "",
     mobile: "",
     components: "",
-    status: "",
+    status: "Issued",
     remark: "",
   });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,50 +37,97 @@ export default function IssuanceForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/form/user-form",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
 
-      const result = await response.json();
+      console.log("response", response);
 
-      if (response.ok) {
-        alert("Form submitted successfully!");
-        setFormData({
-          email: "",
-          batch: "",
-          category: "",
-          idNumber: "",
-          name: "",
-          branch: "",
-          mobile: "",
-          components: "",
-          status: "",
-          remark: "",
-        });
-      } else {
-        alert(result.message || "Error submitting form");
+      if (response?.data?.success === true) {
+        setTimeout(() => {
+          setSubmitted(true);
+          setLoading(false);
+          setFormData({
+            ...formData,
+            email: "",
+            batch: "",
+            category: "",
+            idNumber: "",
+            name: "",
+            branch: "",
+            mobile: "",
+            components: "",
+            status: "Issued",
+            remark: "",
+          });
+        }, 1500);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Something went wrong. Please try again.");
+      setLoading(false); // Stop loading on error
     }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 5 }}>
-      <Paper
-        elevation={3}
-        sx={{ p: 4, borderTop: "8px solid #1E40AF", borderRadius: 2 }}
-      >
-        <Typography variant="h5" fontWeight="bold" mb={2}>
-          Electrical Engineering Department Issuance Record Form
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+    <>
+      {submitted ? (
+        <Container maxWidth="sm" sx={{ mt: 5 }}>
+          <Card
+            sx={{
+              p: 4,
+              textAlign: "center",
+              // backgroundColor: "#E6F4EA",
+              backgroundColor: "#DFF2BF",
+              borderRadius: 2,
+              borderLeft: "6px solid green",
+              borderRight: "6px solid green",
+              // borderLeft: "6px solid #1E40AF",
+              // borderRight: "6px solid #1E40AF",
+            }}
+          >
+            <CardContent>
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                color="success"
+                // sx={{ color: "#043c5a" }}
+              >
+                🎉 Submission Successful!
+              </Typography>
+              <Typography variant="body1" sx={{ mt: 2 }}>
+                Your form has been successfully submitted.
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => setSubmitted(false)} // Reset form view
+                sx={{ mt: 3, backgroundColor: "#043c5a" }}
+              >
+                Submit Another
+              </Button>
+            </CardContent>
+          </Card>
+        </Container>
+      ) : (
+        <Container maxWidth="sm" sx={{ mt: 5 }}>
+          <Paper
+            elevation={3}
+            sx={{ p: 4, borderTop: "8px solid #1E40AF", borderRadius: 2 }}
+          >
+            <Typography variant="h5" fontWeight="bold" mb={2}>
+              Electrical Engineering Department Issuance Record Form
+            </Typography>
+            <form
+              onSubmit={handleSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: "15px" }}
+            >
               <TextField
                 fullWidth
                 label="Email"
@@ -85,36 +137,36 @@ export default function IssuanceForm() {
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Batch (Year of Joining)</InputLabel>
                 <Select
+                  label="Batch (Year of Joining)"
                   name="batch"
                   value={formData.batch}
                   onChange={handleChange}
                 >
                   <MenuItem value="">Choose</MenuItem>
+                  <MenuItem value="2023">2022</MenuItem>
                   <MenuItem value="2023">2023</MenuItem>
-                  <MenuItem value="2022">2022</MenuItem>
+                  <MenuItem value="2023">2023</MenuItem>
+                  <MenuItem value="2022">2025</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Category</InputLabel>
                 <Select
+                  label="Category"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                 >
                   <MenuItem value="">Choose</MenuItem>
-                  <MenuItem value="Component A">Component A</MenuItem>
-                  <MenuItem value="Component B">Component B</MenuItem>
+                  <MenuItem value="btech">B.Tech</MenuItem>
+                  <MenuItem value="mtech">M. Tech</MenuItem>
+                  <MenuItem value="phd">PHD</MenuItem>
+                  <MenuItem value="project-staff">project Staff</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="ID Number"
@@ -123,8 +175,6 @@ export default function IssuanceForm() {
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Name"
@@ -133,8 +183,6 @@ export default function IssuanceForm() {
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Branch"
@@ -143,8 +191,6 @@ export default function IssuanceForm() {
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Mobile Number"
@@ -154,8 +200,6 @@ export default function IssuanceForm() {
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Components"
@@ -164,22 +208,13 @@ export default function IssuanceForm() {
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth required>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="">Choose</MenuItem>
-                  <MenuItem value="Issued">Issued</MenuItem>
-                  <MenuItem value="Returned">Returned</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Status"
+                name="status"
+                value={formData.status}
+                sx={{ display: "none" }}
+              />
               <TextField
                 fullWidth
                 label="Remark"
@@ -187,25 +222,31 @@ export default function IssuanceForm() {
                 value={formData.remark}
                 onChange={handleChange}
               />
-            </Grid>
-            <Grid item xs={12}>
+
               <Button
                 fullWidth
                 type="submit"
                 variant="contained"
                 // color="primary"
+                disabled={loading}
                 sx={{
                   boxShadow: "0px 4px 15px rgba(31, 13, 94, 0.4)",
-                  backgroundColor: "#043c5a",
-                  "&:hover": { backgroundColor: "#03283d" },
+                  backgroundColor: loading ? "#B0BEC5" : "#043c5a",
+                  "&:hover": {
+                    backgroundColor: loading ? "#B0BEC5" : "#03283d",
+                  },
                 }}
               >
-                Submit
+                {loading ? (
+                  <CircularProgress size={24} sx={{ color: "white" }} />
+                ) : (
+                  "Submit"
+                )}
               </Button>
-            </Grid>
-          </Grid>
-        </form>
-      </Paper>
-    </Container>
+            </form>
+          </Paper>
+        </Container>
+      )}
+    </>
   );
 }

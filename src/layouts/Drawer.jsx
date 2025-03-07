@@ -267,7 +267,7 @@ export default function MiniDrawer() {
               component="div"
               sx={{ color: "#fff", ml: 1, fontWeight: "medium" }}
             >
-              Admin Panel
+              Electrical Engineering Department
             </Typography>
           </Box>
           <Box
@@ -358,7 +358,7 @@ export default function MiniDrawer() {
           // minHeight: "100vh",
           minHeight,
           // backgroundColor: "red",
-          p: 3,
+          p: 2,
           width: !open ? "100%" : "calc(100vw - 280px)",
         }}
       >
